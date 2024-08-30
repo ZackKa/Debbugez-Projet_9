@@ -19,9 +19,16 @@ const row = (bill) => {
     `)
   }
 
+//                bug 1 - Bills-- Correction ordre
+// Traite les données avant qu'elles soient affichées
 const rows = (data) => {
-  return (data && data.length) ? data.map(bill => row(bill)).join("") : ""
-}
+  return data && data.length
+    ? data
+        .sort((a, b) => new Date(b.date) - new Date(a.date)) 
+        .map((bill) => row(bill))
+        .join("")
+    : "";
+};
 
 export default ({ data: bills, loading, error }) => {
   

@@ -27,6 +27,8 @@ export default class {
     $('#modaleFile').modal('show')
   }
 
+  //                bug 1 - Bills-- Correction ordre
+  // getBills récupère la liste des factures
   getBills = () => {
     if (this.store) {
       return this.store
@@ -34,6 +36,7 @@ export default class {
       .list()
       .then(snapshot => {
         const bills = snapshot
+          .sort((a, b) => new Date(b.date) - new Date(a.date)) // bug 1 - Ajout du sort pour trier
           .map(doc => {
             try {
               return {
