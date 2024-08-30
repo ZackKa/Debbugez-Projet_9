@@ -145,8 +145,12 @@ export default class {
       this.counter ++
     }
 
+    //              bug 4 - Dashboard
+    // Fix pour les événements de clic sur les cartes des notes de frais
+    // On retire l'événement précédent avec off avant d'en ajouter un nouveau
     bills.forEach(bill => {
-      $(`#open-bill${bill.id}`).click((e) => this.handleEditTicket(e, bill, bills))
+      // $(`#open-bill${bill.id}`).click((e) => this.handleEditTicket(e, bill, bills))
+      $(`#open-bill${bill.id}`).off("click").on("click",((e) => this.handleEditTicket(e, bill, bills)))
     })
 
     return bills
