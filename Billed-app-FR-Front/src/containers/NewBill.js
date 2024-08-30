@@ -15,15 +15,28 @@ export default class NewBill {
     this.billId = null
     new Logout({ document, localStorage, onNavigate })
   }
+
   handleChangeFile = e => {
-    e.preventDefault()
-    const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
-    const filePath = e.target.value.split(/\\/g)
-    const fileName = filePath[filePath.length-1]
-    const formData = new FormData()
-    const email = JSON.parse(localStorage.getItem("user")).email
-    formData.append('file', file)
-    formData.append('email', email)
+    e.preventDefault();
+    const file = this.document.querySelector(`input[data-testid="file"]`).files[0];
+    const fileInput = this.document.querySelector(`input[data-testid="file"]`);
+    const filePath = e.target.value.split(/\\/g);
+    const fileName = filePath[filePath.length - 1];
+
+    //----------bug 3-- [Bug Hunt] - Bills------------
+    
+    // Vérifier le type MIME du fichier
+    if (!file.type.includes('image')) {
+      console.log('Le fichier doit être une image (jpg, jpeg ou png)');
+      fileInput.value = '';
+      alert('Veuillez uploader une image du format .jpg, .jpeg ou .png');
+      return; // Arrêter l'exécution si le type de fichier n'est pas une image
+    }
+
+    const formData = new FormData();
+    const email = JSON.parse(localStorage.getItem("user")).email;
+    formData.append('file', file);
+    formData.append('email', email);
 
     this.store
       .bills()
@@ -33,13 +46,14 @@ export default class NewBill {
           noContentType: true
         }
       })
-      .then(({fileUrl, key}) => {
-        console.log(fileUrl)
-        this.billId = key
-        this.fileUrl = fileUrl
-        this.fileName = fileName
-      }).catch(error => console.error(error))
+      .then(({ fileUrl, key }) => {
+        console.log(fileUrl);
+        this.billId = key;
+        this.fileUrl = fileUrl;
+        this.fileName = fileName;
+      }).catch(error => console.error(error));
   }
+  
   handleSubmit = e => {
     e.preventDefault()
     console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
