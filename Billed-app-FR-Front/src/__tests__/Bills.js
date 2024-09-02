@@ -94,5 +94,38 @@ describe("Given I am connected as an employee", () => {
     })
   })
 
+  // --------------- Redirection au clic sur "nouvelle note de frais"
+
+  describe("When i click the button 'Nouvelle note de frais'", () => {
+    test("Then i redirect to NewwBill", () => {
+      //ON simule la navigation vers différentes pages.
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname })
+      }
+  
+      // On crée une instance de Bills, pour simuler la création d'une bill (facture)
+      const billsPage = new Bills({
+        document,
+        onNavigate,
+        store: null,
+        bills: bills,
+        localStorage: window.localStorage
+      })
+  
+      // On crée OpenNewBill en utilisant jest initialisée avec handleClickNewBill
+      const OpenNewBill = jest.fn(billsPage.handleClickNewBill);
+      // On sélectionne le bouton "Nouvelle note de frais" avec le data-testid "btn-new-bill"
+      const btnNewBill = screen.getByTestId("btn-new-bill")
+  
+      // On ajoute un écouteur d'événements pour déclencher la fonction OpenNewBill
+      btnNewBill.addEventListener("click", OpenNewBill)//écoute évènement
+      // // On simule le clic en utilisant fireEvent
+      fireEvent.click(btnNewBill)
+      // On vérifie si la fonction OpenNewBill a été appelée
+      expect(OpenNewBill).toHaveBeenCalled()
+      // On vérifie si le texte "Envoyer une note de frais" est présent dans le document. Pour verifier la redirection
+      expect(screen.getByText("Envoyer une note de frais")).toBeTruthy()
+    })
+  })
 
 })
