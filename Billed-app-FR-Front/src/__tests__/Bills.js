@@ -2,13 +2,16 @@
  * @jest-environment jsdom
  */
 
-import {screen, waitFor} from "@testing-library/dom"
+import { screen, waitFor, fireEvent } from "@testing-library/dom"
 import BillsUI from "../views/BillsUI.js"
 import { bills } from "../fixtures/bills.js"
-import { ROUTES_PATH} from "../constants/routes.js";
-import {localStorageMock} from "../__mocks__/localStorage.js";
+import { ROUTES, ROUTES_PATH } from "../constants/routes.js";
+import { localStorageMock } from "../__mocks__/localStorage.js";
+import Bills from "../containers/Bills.js";
+import mockStore from "../__mocks__/store";
 
 import router from "../app/Router.js";
+jest.mock("../app/Store", () => mockStore)
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on Bills Page", () => {
@@ -38,4 +41,58 @@ describe("Given I am connected as an employee", () => {
       expect(dates).toEqual(datesSorted)
     })
   })
+
+  // ---------- Ouverture modal
+
+  describe("When I click on on eye Button", () => {
+    test("Then modal should open", async () => {
+
+      // On  définit localStorage sur l'objet window grâce à Object.defineProperty.
+      // On simule le comportemenent du localStorage avec localStorageMock
+      Object.defineProperty(window, localStorage, { value: localStorageMock });
+
+      // On simule qu'un "employee" est connecté
+      window.localStorage.setItem("user", JSON.stringify({ type: "Employee" }));
+      // On génère du HTML avec BillsUI avec des données de factures bills.
+      const html = BillsUI({ data: bills });
+      // On affiche l'interface utilisateur des factures
+      document.body.innerHTML = html;
+
+      // On simule la navigation vers différentes pages
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+
+      // On crée une instance de Bills, pour simuler la création d'une bill (facture)
+      const billsContainer = new Bills({
+        document,
+        onNavigate,
+        localStorage: localStorageMock,
+        store: null,
+      });
+
+      // On remplace la méthode modal de jQuery par une fonction créée par Jest. On simule le comportement de modal
+      $.fn.modal = jest.fn();
+
+      //On déclare handleClickIconEye qui est initialisée avec une nouvelle fonction créée par Jest.
+      const handleClickIconEye = jest.fn(() => {
+        billsContainer.handleClickIconEye;
+      });
+
+      // On sélectionne le premier icon-eye
+      const firstEyeIcon = screen.getAllByTestId("icon-eye")[0];
+      // On ajoute un écouteur d'événements
+      firstEyeIcon.addEventListener("click", handleClickIconEye);
+      // On simule le clic en utilisant fireEvent (clic artificielle)
+      fireEvent.click(firstEyeIcon);
+
+      // On verifie si handleClickIconEye a été appelée lors du clic
+      expect(handleClickIconEye).toHaveBeenCalled();
+      // On verifie sur la méthode modal a été appelée pour verifier si la modal a été ouverte
+      expect($.fn.modal).toHaveBeenCalled();
+
+    })
+  })
+
+
 })
