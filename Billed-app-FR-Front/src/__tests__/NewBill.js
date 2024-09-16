@@ -59,7 +59,7 @@ describe("Given I am connected as an employee", () => {
     })
   })
 
-  describe("When I upload a file in the wrond format", () => {
+  describe("When I upload a file in the wrong format", () => {
 
     // Vérifier si le mauvais format ne se télécharge pas
     test("Then a file should not be uploaded", () => {

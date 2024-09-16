@@ -49,7 +49,7 @@ describe("Given I am connected as an employee", () => {
 
       // On  définit localStorage sur l'objet window grâce à Object.defineProperty.
       // On simule le comportemenent du localStorage avec localStorageMock
-      Object.defineProperty(window, localStorage, { value: localStorageMock });
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
       // On simule qu'un "employee" est connecté
       window.localStorage.setItem("user", JSON.stringify({ type: "Employee" }));
@@ -97,7 +97,19 @@ describe("Given I am connected as an employee", () => {
   // --------------- Redirection au clic sur "nouvelle note de frais"
 
   describe("When i click the button 'Nouvelle note de frais'", () => {
-    test("Then i redirect to NewwBill", () => {
+    test("Then i redirect to NewBill", () => {
+
+      // On  définit localStorage sur l'objet window grâce à Object.defineProperty.
+      // On simule le comportemenent du localStorage avec localStorageMock
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+
+      // On simule qu'un "employee" est connecté
+      window.localStorage.setItem("user", JSON.stringify({ type: "Employee" }));
+      // On génère du HTML avec BillsUI avec des données de factures bills.
+      const html = BillsUI({ data: bills });
+      // On affiche l'interface utilisateur des factures
+      document.body.innerHTML = html;
+
       //ON simule la navigation vers différentes pages.
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname })
