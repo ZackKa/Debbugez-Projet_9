@@ -102,7 +102,7 @@ describe("Given I am connected as an employee", () => {
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname })
       }
-  
+
       // On crée une instance de Bills, pour simuler la création d'une bill (facture)
       const billsPage = new Bills({
         document,
@@ -111,12 +111,12 @@ describe("Given I am connected as an employee", () => {
         bills: bills,
         localStorage: window.localStorage
       })
-  
+
       // On crée OpenNewBill en utilisant jest initialisée avec handleClickNewBill
       const OpenNewBill = jest.fn(billsPage.handleClickNewBill);
       // On sélectionne le bouton "Nouvelle note de frais" avec le data-testid "btn-new-bill"
       const btnNewBill = screen.getByTestId("btn-new-bill")
-  
+
       // On ajoute un écouteur d'événements pour déclencher la fonction OpenNewBill
       btnNewBill.addEventListener("click", OpenNewBill)//écoute évènement
       // // On simule le clic en utilisant fireEvent
@@ -128,4 +128,95 @@ describe("Given I am connected as an employee", () => {
     })
   })
 
+  // ---------- GET Bills
+
+  describe("When I get bills", () => {
+    test("Then the bills should be displayed", async () => {
+
+      // On crée une instance de Bills
+      const bills = new Bills({
+        document,
+        onNavigate,
+        store: mockStore,
+        localStorage: window.localStorage,
+      });
+
+      // On crée getBills à l'aide de Jest et on appelle getBills de l'objet bills
+      const getBills = jest.fn(() => bills.getBills());
+
+      // On appelle getBills (manière asynchrone)
+      const value = await getBills();
+
+      // On vérifie que la fonction getBills a bien été appelée
+      expect(getBills).toHaveBeenCalled();
+      // Test si la longeur du tableau (4 factures du __mocks__ store)
+      expect(value.length).toBe(4);
+    });
+  });
+
+
+  //  Test ERREUR 404 et 500
+
+  describe("When an error occurs", () => {
+
+    beforeEach(() => {
+      // On surveille bills du mockstore
+      // SpyOn permet de contrôle le comportement de bills et de simuler des réponses spécifiques, comme le rejet d'une promesse avec une erreur 404 ou 500, sans altérer directement l'objet mockStore
+      jest.spyOn(mockStore, 'bills')
+      // Définition du localStorage avec des données simulées d'un utilisateur connecté
+      Object.defineProperty(window, 'localStorage', {
+        value: localStorageMock,
+      })
+      window.localStorage.setItem(
+        'user',
+        JSON.stringify({
+          type: 'Employee',
+        })
+      )
+      // On crée un élément racine dans le document pour l'application
+      const root = document.createElement('div')
+      root.setAttribute('id', 'root')
+      document.body.appendChild(root)
+      // On initialise le routage de l'application
+      router()
+    })
+
+    test("Then I try to retrieve the bills and a 404 error occurs", async () => {
+
+
+      // Grâce à mockImplementationOnce de jest, on modifie le comportement du mockStore pour renvoyer une promesse rejetée avec une erreur 404 lors de l'appel à la méthode list.
+      mockStore.bills.mockImplementationOnce(() => {
+        return {
+          list: () => {
+            return Promise.reject(new Error("Erreur 404"))
+          }
+        }
+      })
+      // On simule la navigation vers la page des factures 
+      window.onNavigate(ROUTES_PATH.Bills)
+      // On attend la présence du message d'erreur "Erreur 404" dans l'interface utilisateur.
+      // On attend avec await, l'execution de la fonction au prochain cycle d'exécution (tick)
+      await new Promise(process.nextTick)
+      const message = screen.getByText(/Erreur 404/)
+      expect(message).toBeTruthy()
+    })
+
+    test("Then I try to retrieve the bills and a 500 error occurs", async () => {
+
+      // Grâce à mockImplementationOnce de jest, on modifie le comportement du mockStore pour renvoyer une promesse rejetée avec une erreur 500 lors de l'appel à la méthode list.
+      mockStore.bills.mockImplementationOnce(() => {
+        return {
+          list: () => {
+            return Promise.reject(new Error("Erreur 500"))
+          }
+        }
+      })
+      // On simule la navigation vers la page des factures
+      window.onNavigate(ROUTES_PATH.Bills)
+      // On attend la présence du message d'erreur "Erreur 500" dans l'interface utilisateur.
+      await new Promise(process.nextTick)
+      const message = screen.getByText(/Erreur 500/)
+      expect(message).toBeTruthy()
+    })
+  });
 })
