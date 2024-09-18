@@ -87,7 +87,7 @@ describe("Given I am connected as an employee", () => {
         document,
         onNavigate,
         store: null,
-        localStorage: window.localStorage,
+        localStorage: localStorageMock,
       });
 
       // On appelle handleChangeFile de newBill
