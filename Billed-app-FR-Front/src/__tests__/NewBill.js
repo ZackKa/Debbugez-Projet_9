@@ -237,7 +237,7 @@ describe("When I am connected as an Employee", () => {
           create: jest.fn(() => Promise.resolve({})),
           update: jest.fn(() => Promise.reject(new Error("500"))),
         },
-        localStorage,
+        localStorage: localStorageMock,
       });
       // La variable validImage est définie à true pour simuler une image valide
       newBill.validImage = true;

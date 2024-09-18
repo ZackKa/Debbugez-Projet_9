@@ -121,7 +121,7 @@ describe("Given I am connected as an employee", () => {
         onNavigate,
         store: null,
         bills: bills,
-        localStorage: window.localStorage
+        localStorage: localStorageMock,
       })
 
       // On crée OpenNewBill en utilisant jest initialisée avec handleClickNewBill
